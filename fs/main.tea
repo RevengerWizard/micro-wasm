@@ -1,0 +1,29 @@
+var img
+
+function micro.load()
+{
+    print('loading')
+    print('well')
+    print('does this weork')
+    print('I guess so')
+    micro.gfx.setClearColor(38, 40, 51)
+
+    img = micro.Image.fromFile('axe.png')
+}
+
+function micro.update(dt)
+{
+
+}
+
+function micro.draw()
+{
+    micro.gfx.print('meow', 50, 50)
+    var dx, dy = micro.mouse.getPosition()
+    micro.gfx.draw(img, dx, dy)
+}
+
+function micro.keydown(key)
+{
+    print(key)
+}
