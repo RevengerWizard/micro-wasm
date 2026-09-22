@@ -1,6 +1,6 @@
 # micro-wasm
 
-A browser port of the [micro](https://github.com/RevengerWizard/micro) pixel framework, built with WebAssembly and WebGL.
+A browser port of the [micro](https://github.com/RevengerWizard/micro) pixel framework for the browser, using Javascript, WebAssembly and WebGL.
 
 ## Build
 
