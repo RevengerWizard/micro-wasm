@@ -14,15 +14,15 @@ WASM_LDFLAGS = -Wl,--export-all,--allow-undefined,--stack-first,-z,stack-size=10
 
 all: $(TARGET)
 
+$(GLUE_OBJ): $(GLUE_SRC)
+	@echo "WASM CC      $<"
+	@$(WASM_CC) $(WASM_CFLAGS) -c -o $@ $<
+
 $(TARGET): $(LIBMICRO_WASM) $(GLUE_OBJ)
 	@echo "WASM LD      $@"
 	@$(WASM_CC) $(WASM_LDFLAGS) -o $@ $(LIBMICRO_WASM) $(GLUE_OBJ)
 #@echo "WASM OPT     $@"
 #@$(WASM_OPT) $(WASM_OPT_FLAGS) $@ -o $@
-
-$(GLUE_OBJ): $(GLUE_SRC)
-	@echo "WASM CC      $<"
-	@$(WASM_CC) $(WASM_CFLAGS) -c -o $@ $<
 
 clean:
 	$(RM) $(GLUE_OBJ) $(TARGET) $(TARGET).opt

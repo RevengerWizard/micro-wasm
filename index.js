@@ -1,14 +1,14 @@
 import { GL } from './gl.js'
 import { GLFW } from './glfw.js'
 import { WasiPreview1 } from './wasi.js'
-import { loadDirectoryFS } from './dir.js'
-//import { loadPak } from './pak.js'
+//import { loadDirectoryFS } from './dir.js'
+import { loadPak } from './pak.js'
 
 let microModule
 
 async function loadMicroWasm(canvas)
 {
-    const gl = new GL(canvas), fs = await loadDirectoryFS(), wasi = new WasiPreview1({ fs }), glfw = new GLFW({ canvas })
+    const gl = new GL(canvas), fs = await loadPak(), wasi = new WasiPreview1({ fs }), glfw = new GLFW({ canvas })
     const glImports = gl.getImports()
     const env = { ...glImports.env, ...glfw,
         // Patch some symbols
@@ -39,11 +39,21 @@ async function loadMicroWasm(canvas)
        typeof api.micro_wasm_close !== 'function')
         throw new Error('micro.wasm is missing the wasm glue exports; reload the updated micro.wasm')
     api.micro_wasm_open()
-    const frame = () => {
-        return api.micro_wasm_frame() !== 0
-    }
-    const tick = () => {
-        if(frame()) requestAnimationFrame(tick)
+    const frameDuration = 1000 / 60
+    let nextFrame = null
+    const tick = (timestamp) => {
+        if(nextFrame === null) nextFrame = timestamp
+        if(timestamp < nextFrame)
+        {
+            requestAnimationFrame(tick)
+            return
+        }
+
+        const running = api.micro_wasm_frame() !== 0
+        nextFrame += frameDuration
+        // Do not try to catch up with a large backlog after a pause or hitch.
+        if(nextFrame < timestamp) nextFrame = timestamp + frameDuration
+        if(running) requestAnimationFrame(tick)
         else api.micro_wasm_close()
     }
     if(typeof api.micro_wasm_frame === 'function')
